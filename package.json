@@ -9,6 +9,6 @@
     "node": "18.x"
   },
   "scripts": {
-    "build": "echo 'No build needed'"
+    "build": "echo \"No build needed\""
   }
 }
