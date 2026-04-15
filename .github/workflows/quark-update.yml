@@ -34,6 +34,7 @@ jobs:
                 res.on('data', chunk => data += chunk);
                 res.on('end', () => {
                   console.log(`[接口响应] ${url} 状态码: ${res.statusCode}`);
+                  console.log(`[响应内容] ${data}`);
                   resolve({
                     ok: res.statusCode >= 200 && res.statusCode < 300,
                     status: res.statusCode,
@@ -59,7 +60,7 @@ jobs:
 
           const cookie = "${{ secrets.QUARK_COOKIE }}";
           const share_id = "7e2bc6ba4b21";
-          const target_fid = "fe59d8d669e64f8e8e646480ef33f21c";
+          const target_fid = "fe59d8d669e4f8e8e646480ef33f21c";
           const pwd = "${{ github.event.inputs.pwd }}";
           
           console.log(`[配置检查] 目标文件夹ID: ${target_fid}`);
