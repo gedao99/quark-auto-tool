@@ -19,10 +19,11 @@ jobs:
           node-version: '18'
 
       - name: 安装依赖
-        run: npm install node-fetch@3.3.2
+        run: npm install
 
       - name: 执行更新脚本
         run: |
+          node << 'EOF'
           const fetch = require('node-fetch');
           // 配置区
           const cookie = "${{ secrets.QUARK_COOKIE }}";
@@ -115,3 +116,4 @@ jobs:
               process.exit(1);
             }
           })();
+          EOF
