@@ -12,8 +12,7 @@ export default async function handler(req, res) {
 
   const { cookie, share_id, pwd } = req.body;
   // 你的目标文件夹ID，固定不变
-  const target_fid = "fe59d8d669e64f8e8e646480ef33f21c
-";
+const target_fid = "fe59d8d669e64f8e8e646480ef33f21c";
   let log = "";
 
   // 完整请求头，彻底解决夸克反爬拦截
