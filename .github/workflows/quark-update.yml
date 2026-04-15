@@ -1,0 +1,80 @@
+name: 夸克网盘自动更新
+on:
+  workflow_dispatch:
+    inputs:
+      pwd:
+        description: '最新提取码'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 运行更新脚本
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: 执行核心代码
+        run: |
+          const fetch = require('node-fetch');
+          // 配置区
+          const cookie = "${{ secrets.QUARK_COOKIE }}";
+          const share_id = "7e2bc6ba4b21";
+          const target_fid = "fe59d8d669e64f8e8e646480ef33f21c";
+          const pwd = "${{ github.event.inputs.pwd }}";
+          
+          const headers = {
+            "Cookie": cookie,
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+            "Content-Type": "application/json",
+            "Referer": "https://pan.quark.cn/",
+            "Origin": "https://pan.quark.cn"
+          };
+
+          (async () => {
+            console.log("🔄 开始执行...");
+            try {
+              // 1. 清空旧文件
+              console.log("🧹 正在清空旧文件...");
+              const listRes = await fetch("https://pan.quark.cn/1/api/file/list", {
+                method: "POST", headers, body: JSON.stringify({ fid: target_fid, page_index: 1, page_size: 200 })
+              });
+              const listData = await listRes.json();
+              const files = listData.data?.list || [];
+              if (files.length > 0) {
+                const fids = files.map(f => f.fid);
+                await fetch("https://pan.quark.cn/1/api/file/delete", {
+                  method: "POST", headers, body: JSON.stringify({ fids, is_delete: true })
+                });
+                console.log(`✅ 已清理 ${files.length} 个旧文件`);
+              } else {
+                console.log("✅ 文件夹无旧文件");
+              }
+
+              // 2. 获取分享目录
+              console.log("🔍 获取分享资源...");
+              const shareRes = await fetch("https://pan.quark.cn/1/api/share/transfer/list", {
+                method: "POST", headers, body: JSON.stringify({ share_id, pwd, page_index: 1, page_size: 100, fid: "" })
+              });
+              const shareData = await shareRes.json();
+              if (shareData.code !== 0) throw new Error(`分享失败: ${shareData.message}`);
+              const folder = shareData.data?.list?.[0];
+              if (!folder) throw new Error("未找到分享文件夹");
+
+              // 3. 转存新资源
+              console.log("📤 正在转存最新资源...");
+              const saveRes = await fetch("https://pan.quark.cn/1/api/share/transfer/save", {
+                method: "POST", headers, body: JSON.stringify({
+                  share_id, pwd,
+                  save_list: [{ fid: folder.fid, is_dir: folder.is_dir }],
+                  to_fid: target_fid
+                })
+              });
+              const saveData = await saveRes.json();
+              if (saveData.code === 0) console.log("🎉 更新成功！");
+              else throw new Error(`转存失败: ${saveData.message}`);
+            } catch (e) {
+              console.log("❌ 执行失败:", e.message);
+            }
+          })();
+        shell: node {0}
