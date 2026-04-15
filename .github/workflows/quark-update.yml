@@ -17,18 +17,22 @@ jobs:
         run: |
           node << 'EOF'
           const https = require('https');
-          const http = require('http');
 
           function customFetch(url, options = {}) {
             return new Promise((resolve, reject) => {
               const urlObj = new URL(url);
-              const lib = urlObj.protocol === 'https:' ? https : http;
-
-              const req = lib.request({
+              
+              const req = https.request({
                 hostname: urlObj.hostname,
                 path: urlObj.pathname + urlObj.search,
                 method: options.method || 'GET',
-                headers: options.headers || {}
+                headers: {
+                  'Content-Type': 'application/json',
+                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+                  'Referer': 'https://pan.quark.cn/',
+                  'Origin': 'https://pan.quark.cn/',
+                  ...options.headers
+                }
               }, (res) => {
                 let data = '';
                 res.on('data', chunk => data += chunk);
@@ -68,11 +72,7 @@ jobs:
           console.log(`[配置检查] Cookie长度: ${cookie.length}`);
           
           const headers = {
-            "Cookie": cookie,
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-            "Content-Type": "application/json",
-            "Referer": "https://pan.quark.cn/",
-            "Origin": "https://pan.quark.cn/"
+            "Cookie": cookie
           };
 
           (async () => {
