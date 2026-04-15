@@ -115,4 +115,3 @@ jobs:
               process.exit(1);
             }
           })();
-        shell: node
