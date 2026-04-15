@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
-  // 允许跨域
+  // 跨域处理，避免前端请求报错
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   const target_fid = "af08cecad2fb47a1b09cb0a20fdee2a9";
   let log = "";
 
-  // 完整请求头，解决夸克反爬
+  // 完整请求头，彻底解决夸克反爬拦截
   const headers = {
     "Cookie": cookie,
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
@@ -30,11 +30,7 @@ export default async function handler(req, res) {
     const listRes = await fetch("https://pan.quark.cn/1/api/file/list", {
       method: "POST",
       headers: headers,
-      body: JSON.stringify({
-        fid: target_fid,
-        page_index: 1,
-        page_size: 200
-      }),
+      body: JSON.stringify({ fid: target_fid, page_index: 1, page_size: 200 }),
       timeout: 30000
     });
 
