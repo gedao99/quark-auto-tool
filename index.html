@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>夸克一键更新工具</title>
+    <style>
+        body{max-width:480px;margin:30px auto;padding:20px;font-family:Arial}
+        input,button{width:100%;padding:10px;margin:8px 0;font-size:16px}
+        button{background:#007bff;color:white;border:none;border-radius:5px}
+        .log{background:#f5f5f5;padding:10px;margin-top:10px;min-height:100px;white-space:pre-wrap}
+    </style>
+</head>
+<body>
+    <h2>夸克网盘一键更新（自动清空+转存）</h2>
+    <input type="text" id="cookie" placeholder="粘贴你的夸克 Cookie">
+    <input type="text" id="share_id" value="7e2bc6ba4b21" placeholder="分享ID">
+    <input type="text" id="pwd" placeholder="输入最新提取码">
+    <button onclick="run()">一键更新资源</button>
+    <div class="log" id="log"></div>
+
+<script>
+async function run(){
+    let log = document.getElementById('log');
+    log.textContent = "正在执行...\n";
+    
+    let res = await fetch("/api/update", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            cookie:document.getElementById('cookie').value,
+            share_id:document.getElementById('share_id').value,
+            pwd:document.getElementById('pwd').value
+        })
+    });
+    let text = await res.text();
+    log.textContent = text;
+}
+</script>
+</body>
+</html>
